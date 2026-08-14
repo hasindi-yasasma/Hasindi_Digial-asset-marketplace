@@ -1,0 +1,775 @@
+{
+  "abi": [
+    {
+      "type": "constructor",
+      "stateMutability": "undefined",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "nftContractAddress"
+        },
+        {
+          "type": "address",
+          "name": "initialOwner"
+        }
+      ]
+    },
+    {
+      "type": "error",
+      "name": "AlreadyListed",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "AssetDoesNotExist",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "AssetNotForSale",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "CannotBuyOwnAsset",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "EmptyString",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "InsufficientPayment",
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "price"
+        },
+        {
+          "type": "uint256",
+          "name": "value"
+        }
+      ]
+    },
+    {
+      "type": "error",
+      "name": "InvalidAddress",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "NotOwner",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "OwnableInvalidOwner",
+      "inputs": [
+        {
+          "type": "address",
+          "name": "owner"
+        }
+      ]
+    },
+    {
+      "type": "error",
+      "name": "OwnableUnauthorizedAccount",
+      "inputs": [
+        {
+          "type": "address",
+          "name": "account"
+        }
+      ]
+    },
+    {
+      "type": "error",
+      "name": "PriceMustBeGreaterThanZero",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "ReentrancyGuardReentrantCall",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "TransferFailed",
+      "inputs": []
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "AssetCreated",
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "tokenId",
+          "indexed": true
+        },
+        {
+          "type": "string",
+          "name": "name",
+          "indexed": false
+        },
+        {
+          "type": "string",
+          "name": "category",
+          "indexed": false
+        },
+        {
+          "type": "string",
+          "name": "imageUrl",
+          "indexed": false
+        },
+        {
+          "type": "address",
+          "name": "creator",
+          "indexed": true
+        },
+        {
+          "type": "address",
+          "name": "owner",
+          "indexed": true
+        },
+        {
+          "type": "uint256",
+          "name": "price",
+          "indexed": false
+        },
+        {
+          "type": "bool",
+          "name": "forSale",
+          "indexed": false
+        },
+        {
+          "type": "uint256",
+          "name": "timestamp",
+          "indexed": false
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "AssetListed",
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "tokenId",
+          "indexed": true
+        },
+        {
+          "type": "address",
+          "name": "seller",
+          "indexed": true
+        },
+        {
+          "type": "uint256",
+          "name": "price",
+          "indexed": false
+        },
+        {
+          "type": "uint256",
+          "name": "timestamp",
+          "indexed": false
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "AssetPurchased",
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "tokenId",
+          "indexed": true
+        },
+        {
+          "type": "address",
+          "name": "buyer",
+          "indexed": true
+        },
+        {
+          "type": "address",
+          "name": "seller",
+          "indexed": true
+        },
+        {
+          "type": "uint256",
+          "name": "price",
+          "indexed": false
+        },
+        {
+          "type": "uint256",
+          "name": "timestamp",
+          "indexed": false
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "AssetTransferred",
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "tokenId",
+          "indexed": true
+        },
+        {
+          "type": "address",
+          "name": "from",
+          "indexed": true
+        },
+        {
+          "type": "address",
+          "name": "to",
+          "indexed": true
+        },
+        {
+          "type": "uint256",
+          "name": "timestamp",
+          "indexed": false
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "ListingCancelled",
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "tokenId",
+          "indexed": true
+        },
+        {
+          "type": "address",
+          "name": "owner",
+          "indexed": true
+        },
+        {
+          "type": "uint256",
+          "name": "timestamp",
+          "indexed": false
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "OwnershipTransferred",
+      "inputs": [
+        {
+          "type": "address",
+          "name": "previousOwner",
+          "indexed": true
+        },
+        {
+          "type": "address",
+          "name": "newOwner",
+          "indexed": true
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "PriceUpdated",
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "tokenId",
+          "indexed": true
+        },
+        {
+          "type": "address",
+          "name": "owner",
+          "indexed": true
+        },
+        {
+          "type": "uint256",
+          "name": "oldPrice",
+          "indexed": false
+        },
+        {
+          "type": "uint256",
+          "name": "newPrice",
+          "indexed": false
+        },
+        {
+          "type": "uint256",
+          "name": "timestamp",
+          "indexed": false
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "assetsSold",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "uint256",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "buyAsset",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "tokenId"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "cancelListing",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "tokenId"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "createAndListAsset",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "string",
+          "name": "name"
+        },
+        {
+          "type": "string",
+          "name": "description"
+        },
+        {
+          "type": "string",
+          "name": "category"
+        },
+        {
+          "type": "string",
+          "name": "imageUrl"
+        },
+        {
+          "type": "uint256",
+          "name": "price"
+        },
+        {
+          "type": "bool",
+          "name": "forSale"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "uint256",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getAllAssets",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            {
+              "type": "uint256",
+              "name": "tokenId"
+            },
+            {
+              "type": "string",
+              "name": "name"
+            },
+            {
+              "type": "string",
+              "name": "description"
+            },
+            {
+              "type": "string",
+              "name": "category"
+            },
+            {
+              "type": "string",
+              "name": "imageUrl"
+            },
+            {
+              "type": "address",
+              "name": "creator"
+            },
+            {
+              "type": "address",
+              "name": "currentOwner"
+            },
+            {
+              "type": "uint256",
+              "name": "price"
+            },
+            {
+              "type": "bool",
+              "name": "forSale"
+            },
+            {
+              "type": "uint256",
+              "name": "createdAt"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getAllTransactions",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            {
+              "type": "uint256",
+              "name": "tokenId"
+            },
+            {
+              "type": "address",
+              "name": "from"
+            },
+            {
+              "type": "address",
+              "name": "to"
+            },
+            {
+              "type": "uint256",
+              "name": "price"
+            },
+            {
+              "type": "uint256",
+              "name": "timestamp"
+            },
+            {
+              "type": "string",
+              "name": "eventType"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getAsset",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "tokenId"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            {
+              "type": "uint256",
+              "name": "tokenId"
+            },
+            {
+              "type": "string",
+              "name": "name"
+            },
+            {
+              "type": "string",
+              "name": "description"
+            },
+            {
+              "type": "string",
+              "name": "category"
+            },
+            {
+              "type": "string",
+              "name": "imageUrl"
+            },
+            {
+              "type": "address",
+              "name": "creator"
+            },
+            {
+              "type": "address",
+              "name": "currentOwner"
+            },
+            {
+              "type": "uint256",
+              "name": "price"
+            },
+            {
+              "type": "bool",
+              "name": "forSale"
+            },
+            {
+              "type": "uint256",
+              "name": "createdAt"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getMarketplaceStats",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            {
+              "type": "uint256",
+              "name": "totalAssets"
+            },
+            {
+              "type": "uint256",
+              "name": "assetsForSale"
+            },
+            {
+              "type": "uint256",
+              "name": "assetsSold"
+            },
+            {
+              "type": "uint256",
+              "name": "totalTransactions"
+            },
+            {
+              "type": "uint256",
+              "name": "uniqueOwnersCount"
+            },
+            {
+              "type": "uint256",
+              "name": "totalVolumeWei"
+            },
+            {
+              "type": "uint256",
+              "name": "highestValueAssetPrice"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getOwnershipHistory",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "tokenId"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            {
+              "type": "uint256",
+              "name": "tokenId"
+            },
+            {
+              "type": "address",
+              "name": "from"
+            },
+            {
+              "type": "address",
+              "name": "to"
+            },
+            {
+              "type": "uint256",
+              "name": "price"
+            },
+            {
+              "type": "uint256",
+              "name": "timestamp"
+            },
+            {
+              "type": "string",
+              "name": "eventType"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getTopHolders",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            {
+              "type": "address",
+              "name": "holder"
+            },
+            {
+              "type": "uint256",
+              "name": "assetCount"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "listAsset",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "tokenId"
+        },
+        {
+          "type": "uint256",
+          "name": "price"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "nftContract",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "address",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "owner",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "address",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "renounceOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "totalVolumeWei",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "uint256",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "transferAsset",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "tokenId"
+        },
+        {
+          "type": "address",
+          "name": "to"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "transferOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "newOwner"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateListingPrice",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "tokenId"
+        },
+        {
+          "type": "uint256",
+          "name": "newPrice"
+        }
+      ],
+      "outputs": []
+    }
+  ]
+}

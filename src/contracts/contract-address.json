@@ -1,0 +1,7 @@
+{
+  "network": "sepolia",
+  "chainId": "11155111",
+  "nftContractAddress": "0x0454B624615e971Bdc15e2Bcc2A7D773b45DeC56",
+  "marketplaceAddress": "0xAb5D4B3Dc4b1b1CD4BA013346e185b6624E8cF53",
+  "deployedAt": "2026-08-14T09:28:13.702Z"
+}

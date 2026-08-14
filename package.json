@@ -1,0 +1,42 @@
+{
+  "name": "decentralized-digital-asset-marketplace",
+  "version": "1.0.0",
+  "description": "All-in-One Decentralized Digital Asset Marketplace built with Next.js, Solidity, Hardhat, and Ethers.js v6 for Vercel deployment",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "node": "hardhat node",
+    "deploy:local": "hardhat run scripts/deploy.ts --network localhost",
+    "dev:all": "concurrently \"npm run node\" \"npm run dev\""
+  },
+  "dependencies": {
+    "axios": "^1.6.8",
+    "clsx": "^2.1.0",
+    "ethers": "^6.11.1",
+    "lucide-react": "^0.359.0",
+    "next": "^14.2.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^2.2.2"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@openzeppelin/contracts": "^5.0.2",
+    "@types/node": "^20.11.24",
+    "@types/react": "^18.2.66",
+    "@types/react-dom": "^18.2.22",
+    "autoprefixer": "^10.4.19",
+    "concurrently": "^8.2.2",
+    "dotenv": "^16.4.5",
+    "hardhat": "^2.22.2",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}
