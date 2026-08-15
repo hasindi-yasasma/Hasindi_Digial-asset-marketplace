@@ -4,17 +4,21 @@
 
 @layer base {
   body {
-    @apply bg-slate-950 text-slate-100 min-h-screen flex flex-col transition-colors duration-300;
+    @apply bg-slate-50 text-slate-900 min-h-screen flex flex-col transition-colors duration-300 antialiased selection:bg-emerald-100 selection:text-emerald-900;
   }
 }
 
-/* Glassmorphism effects */
+/* Glassmorphism light effects matching reference design */
 .glass-panel {
-  @apply bg-slate-900/70 backdrop-blur-xl border border-slate-800/80 shadow-2xl;
+  @apply bg-white/85 backdrop-blur-xl border border-slate-200/80 shadow-xl shadow-slate-200/50 rounded-3xl;
 }
 
 .glass-card {
-  @apply bg-slate-900/60 backdrop-blur-md border border-slate-800 hover:border-brand-500/50 transition-all duration-300;
+  @apply bg-white/80 backdrop-blur-md border border-slate-200/70 hover:border-emerald-400/60 shadow-lg shadow-slate-200/40 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 rounded-3xl;
+}
+
+.mint-pill-btn {
+  @apply rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-600 hover:to-teal-600 text-white font-bold shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all hover:scale-[1.02] active:scale-[0.98];
 }
 
 /* Custom scrollbars */
@@ -24,14 +28,15 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: #f1f5f9;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #cbd5e1;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #94a3b8;
 }
+

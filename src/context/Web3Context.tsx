@@ -378,7 +378,17 @@ export const Web3Provider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (typeof window === 'undefined' || !(window as any).ethereum) {
       throw new Error('MetaMask not detected');
     }
-    const provider = new ethers.BrowserProvider((window as any).ethereum);
+    const ethereum = (window as any).ethereum;
+
+    // Verify network is Sepolia before performing write transaction
+    const currentChainIdHex = await ethereum.request({ method: 'eth_chainId' });
+    const decChainId = parseInt(currentChainIdHex, 16).toString();
+    if (decChainId !== '11155111') {
+      addToast('info', 'Switching Network', 'Switching MetaMask to Ethereum Sepolia...');
+      await switchNetwork();
+    }
+
+    const provider = new ethers.BrowserProvider(ethereum);
     const signer = await provider.getSigner();
     const contract = new ethers.Contract(
       CONTRACT_ADDRESSES.marketplaceAddress,
@@ -402,17 +412,51 @@ export const Web3Provider: React.FC<{ children: ReactNode }> = ({ children }) =>
     forSale: boolean
   ): Promise<boolean> => {
     try {
+      const cleanName = name.trim();
+      const cleanDesc = description.trim();
+      const cleanCategory = category.trim() || 'Art';
+      const cleanImageUrl = imageUrl.trim();
+      const cleanPrice = priceEth ? priceEth.trim() : '0';
+
+      if (!cleanName || !cleanCategory || !cleanImageUrl) {
+        addToast('error', 'Validation Error', 'Title, category, and image URL are required.');
+        return false;
+      }
+
+      const priceWei = forSale ? ethers.parseEther(cleanPrice) : 0n;
+      if (forSale && priceWei <= 0n) {
+        addToast('error', 'Validation Error', 'Listing price must be greater than 0 ETH.');
+        return false;
+      }
+
       addToast('info', 'Transaction Pending', 'Please confirm the minting transaction in MetaMask...');
       const { contract } = await getSignerAndMarketplace();
-      const priceWei = forSale ? ethers.parseEther(priceEth) : 0n;
+
+      let gasLimit = 950000n;
+      try {
+        const estimated = await contract.createAndListAsset.estimateGas(
+          cleanName,
+          cleanDesc,
+          cleanCategory,
+          cleanImageUrl,
+          priceWei,
+          forSale
+        );
+        const buffered = (estimated * 120n) / 100n;
+        gasLimit = buffered > 1200000n ? 1200000n : buffered;
+      } catch (estErr) {
+        console.warn('Gas estimation fallback used (950k gas):', estErr);
+        gasLimit = 950000n;
+      }
 
       const tx = await contract.createAndListAsset(
-        name,
-        description,
-        category,
-        imageUrl,
+        cleanName,
+        cleanDesc,
+        cleanCategory,
+        cleanImageUrl,
         priceWei,
-        forSale
+        forSale,
+        { gasLimit }
       );
 
       addToast('info', 'Mining Block', `Transaction submitted: ${tx.hash.substring(0, 10)}... Waiting for confirmation.`);
@@ -422,7 +466,8 @@ export const Web3Provider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return true;
     } catch (err: any) {
       console.error('Create asset error:', err);
-      addToast('error', 'Minting Failed', err.reason || err.message || 'Transaction rejected.');
+      const msg = err.reason || err.shortMessage || err.message || 'Transaction reverted.';
+      addToast('error', 'Minting Failed', msg);
       return false;
     }
   };
@@ -433,14 +478,24 @@ export const Web3Provider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const { contract } = await getSignerAndMarketplace();
       const priceWei = ethers.parseEther(priceEth);
 
-      const tx = await contract.listAsset(tokenId, priceWei);
+      let gasLimit = 250000n;
+      try {
+        const estimated = await contract.listAsset.estimateGas(tokenId, priceWei);
+        const buffered = (estimated * 120n) / 100n;
+        gasLimit = buffered > 400000n ? 400000n : buffered;
+      } catch (estErr) {
+        console.warn('Gas estimation failed, using fallback gas limit:', estErr);
+        gasLimit = 250000n;
+      }
+
+      const tx = await contract.listAsset(tokenId, priceWei, { gasLimit });
       addToast('info', 'Mining Block', 'Listing transaction submitted. Awaiting block confirmation...');
       await tx.wait();
       addToast('success', 'Asset Listed!', `Token #${tokenId} is now listed for ${priceEth} ETH.`);
       return true;
     } catch (err: any) {
       console.error('List asset error:', err);
-      addToast('error', 'Listing Failed', err.reason || err.message || 'Transaction failed.');
+      addToast('error', 'Listing Failed', err.reason || err.shortMessage || err.message || 'Transaction failed.');
       return false;
     }
   };
@@ -451,7 +506,17 @@ export const Web3Provider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const { contract } = await getSignerAndMarketplace();
       const priceWei = ethers.parseEther(priceEth);
 
-      const tx = await contract.buyAsset(tokenId, { value: priceWei });
+      let gasLimit = 350000n;
+      try {
+        const estimated = await contract.buyAsset.estimateGas(tokenId, { value: priceWei });
+        const buffered = (estimated * 120n) / 100n;
+        gasLimit = buffered > 600000n ? 600000n : buffered;
+      } catch (estErr) {
+        console.warn('Gas estimation failed, using fallback gas limit:', estErr);
+        gasLimit = 350000n;
+      }
+
+      const tx = await contract.buyAsset(tokenId, { value: priceWei, gasLimit });
       addToast('info', 'Processing Purchase', `Buying Token #${tokenId}. Waiting for block confirmation...`);
       await tx.wait();
       addToast('success', 'Purchase Complete!', `Congratulations! Token #${tokenId} ownership transferred to your wallet.`);
@@ -459,7 +524,7 @@ export const Web3Provider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return true;
     } catch (err: any) {
       console.error('Buy asset error:', err);
-      addToast('error', 'Purchase Failed', err.reason || err.message || 'Transaction failed.');
+      addToast('error', 'Purchase Failed', err.reason || err.shortMessage || err.message || 'Transaction failed.');
       return false;
     }
   };
@@ -470,13 +535,23 @@ export const Web3Provider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const { contract } = await getSignerAndMarketplace();
       const newPriceWei = ethers.parseEther(newPriceEth);
 
-      const tx = await contract.updateListingPrice(tokenId, newPriceWei);
+      let gasLimit = 150000n;
+      try {
+        const estimated = await contract.updateListingPrice.estimateGas(tokenId, newPriceWei);
+        const buffered = (estimated * 120n) / 100n;
+        gasLimit = buffered > 300000n ? 300000n : buffered;
+      } catch (estErr) {
+        console.warn('Gas estimation failed, using fallback gas limit:', estErr);
+        gasLimit = 150000n;
+      }
+
+      const tx = await contract.updateListingPrice(tokenId, newPriceWei, { gasLimit });
       await tx.wait();
       addToast('success', 'Price Updated!', `Listing price updated to ${newPriceEth} ETH.`);
       return true;
     } catch (err: any) {
       console.error('Update price error:', err);
-      addToast('error', 'Update Failed', err.reason || err.message || 'Transaction failed.');
+      addToast('error', 'Update Failed', err.reason || err.shortMessage || err.message || 'Transaction failed.');
       return false;
     }
   };
@@ -485,13 +560,24 @@ export const Web3Provider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       addToast('info', 'Transaction Pending', 'Confirm listing cancellation in MetaMask...');
       const { contract } = await getSignerAndMarketplace();
-      const tx = await contract.cancelListing(tokenId);
+
+      let gasLimit = 150000n;
+      try {
+        const estimated = await contract.cancelListing.estimateGas(tokenId);
+        const buffered = (estimated * 120n) / 100n;
+        gasLimit = buffered > 300000n ? 300000n : buffered;
+      } catch (estErr) {
+        console.warn('Gas estimation failed, using fallback gas limit:', estErr);
+        gasLimit = 150000n;
+      }
+
+      const tx = await contract.cancelListing(tokenId, { gasLimit });
       await tx.wait();
       addToast('success', 'Listing Cancelled', `Token #${tokenId} is no longer for sale.`);
       return true;
     } catch (err: any) {
       console.error('Cancel listing error:', err);
-      addToast('error', 'Cancel Failed', err.reason || err.message || 'Transaction failed.');
+      addToast('error', 'Cancel Failed', err.reason || err.shortMessage || err.message || 'Transaction failed.');
       return false;
     }
   };
@@ -504,18 +590,37 @@ export const Web3Provider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const isApproved = await nftContract.isApprovedForAll(account, CONTRACT_ADDRESSES.marketplaceAddress);
       if (!isApproved) {
         addToast('info', 'Approve Operator', 'Approving Marketplace contract to manage transfer...');
-        const appTx = await nftContract.setApprovalForAll(CONTRACT_ADDRESSES.marketplaceAddress, true);
+        let appGasLimit = 150000n;
+        try {
+          const estimated = await nftContract.setApprovalForAll.estimateGas(CONTRACT_ADDRESSES.marketplaceAddress, true);
+          const buffered = (estimated * 120n) / 100n;
+          appGasLimit = buffered > 300000n ? 300000n : buffered;
+        } catch (estErr) {
+          console.warn('Approval gas estimation failed, using fallback limit:', estErr);
+          appGasLimit = 150000n;
+        }
+        const appTx = await nftContract.setApprovalForAll(CONTRACT_ADDRESSES.marketplaceAddress, true, { gasLimit: appGasLimit });
         await appTx.wait();
       }
 
-      const tx = await contract.transferAsset(tokenId, toAddress);
+      let gasLimit = 250000n;
+      try {
+        const estimated = await contract.transferAsset.estimateGas(tokenId, toAddress);
+        const buffered = (estimated * 120n) / 100n;
+        gasLimit = buffered > 400000n ? 400000n : buffered;
+      } catch (estErr) {
+        console.warn('Transfer gas estimation failed, using fallback limit:', estErr);
+        gasLimit = 250000n;
+      }
+
+      const tx = await contract.transferAsset(tokenId, toAddress, { gasLimit });
       await tx.wait();
       addToast('success', 'Asset Transferred!', `Token #${tokenId} transferred to ${toAddress}.`);
       if (account) updateAccountBalance(account);
       return true;
     } catch (err: any) {
       console.error('Transfer asset error:', err);
-      addToast('error', 'Transfer Failed', err.reason || err.message || 'Transaction failed.');
+      addToast('error', 'Transfer Failed', err.reason || err.shortMessage || err.message || 'Transaction failed.');
       return false;
     }
   };

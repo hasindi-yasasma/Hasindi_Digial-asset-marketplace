@@ -78,32 +78,32 @@ export default function MarketplacePage() {
     <div className="space-y-8 py-6">
       {/* Header Title */}
       <div className="space-y-2">
-        <h1 className="text-3xl font-extrabold text-white flex items-center gap-3">
-          <ShoppingBag className="w-8 h-8 text-brand-400" />
+        <h1 className="text-3xl font-black text-slate-900 flex items-center gap-3">
+          <ShoppingBag className="w-8 h-8 text-emerald-500" />
           <span>Explore Digital Marketplace</span>
         </h1>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-slate-500 font-medium">
           Browse, filter, and purchase unique ERC-721 digital asset tokens on-chain
         </p>
       </div>
 
       {/* Filter and Search Controls Bar */}
-      <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-4 space-y-4">
+      <div className="rounded-3xl bg-white/90 border border-slate-200/80 p-5 space-y-4 shadow-lg shadow-slate-200/40">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Search Input */}
           <div className="relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-4 top-3.5" />
             <input
               type="text"
               placeholder="Search by name, description, owner or ID..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 transition-colors"
+              className="w-full pl-11 pr-4 py-2.5 rounded-full bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-500 font-medium transition-colors"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-3 text-slate-400 hover:text-white"
+                className="absolute right-3.5 top-3 text-slate-400 hover:text-slate-700"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -116,7 +116,7 @@ export default function MarketplacePage() {
             <select
               value={sortBy}
               onChange={(e: any) => setSortBy(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500"
+              className="w-full px-4 py-2.5 rounded-full bg-slate-50 border border-slate-200 text-xs text-slate-800 font-bold focus:outline-none focus:border-emerald-500"
             >
               <option value="newest">Sort: Newest First</option>
               <option value="oldest">Sort: Oldest First</option>
@@ -126,13 +126,13 @@ export default function MarketplacePage() {
           </div>
 
           {/* Toggles (For Sale / Owned) */}
-          <div className="flex items-center gap-4 text-xs font-semibold text-slate-300">
+          <div className="flex items-center gap-4 text-xs font-bold text-slate-700">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
                 checked={forSaleOnly}
                 onChange={(e) => setForSaleOnly(e.target.checked)}
-                className="w-4 h-4 rounded bg-slate-950 border-slate-800 text-brand-600 focus:ring-brand-500"
+                className="w-4 h-4 rounded text-emerald-500 focus:ring-emerald-400 border-slate-300"
               />
               <span>For Sale Only</span>
             </label>
@@ -143,7 +143,7 @@ export default function MarketplacePage() {
                   type="checkbox"
                   checked={ownedByMeOnly}
                   onChange={(e) => setOwnedByMeOnly(e.target.checked)}
-                  className="w-4 h-4 rounded bg-slate-950 border-slate-800 text-brand-600 focus:ring-brand-500"
+                  className="w-4 h-4 rounded text-emerald-500 focus:ring-emerald-400 border-slate-300"
                 />
                 <span>Owned by Me</span>
               </label>
@@ -152,19 +152,19 @@ export default function MarketplacePage() {
         </div>
 
         {/* Category Pills Bar */}
-        <div className="pt-2 border-t border-slate-800/80 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-          <span className="text-xs text-slate-400 font-semibold flex items-center gap-1 shrink-0 mr-1">
-            <Filter className="w-3.5 h-3.5" />
+        <div className="pt-3 border-t border-slate-200/80 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+          <span className="text-xs text-slate-500 font-bold flex items-center gap-1 shrink-0 mr-1">
+            <Filter className="w-3.5 h-3.5 text-emerald-600" />
             <span>Category:</span>
           </span>
           {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all ${
+              className={`px-4 py-1.5 rounded-full text-xs font-extrabold shrink-0 transition-all ${
                 selectedCategory === cat
-                  ? 'bg-brand-600 text-white shadow-md shadow-brand-600/30'
-                  : 'bg-slate-950 text-slate-400 hover:text-slate-200 border border-slate-800'
+                  ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/25'
+                  : 'bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200'
               }`}
             >
               {cat}
@@ -188,9 +188,9 @@ export default function MarketplacePage() {
           ))}
         </div>
       ) : (
-        <div className="p-16 text-center rounded-2xl bg-slate-900/40 border border-slate-800 space-y-3">
-          <p className="text-slate-400 text-sm font-semibold">No digital assets match your filter criteria.</p>
-          <p className="text-xs text-slate-500">Try adjusting your search query, category selection, or for-sale toggles.</p>
+        <div className="p-16 text-center rounded-3xl bg-white/90 border border-slate-200/80 shadow-md space-y-3">
+          <p className="text-slate-700 text-sm font-bold">No digital assets match your filter criteria.</p>
+          <p className="text-xs text-slate-500 font-medium">Try adjusting your search query, category selection, or for-sale toggles.</p>
         </div>
       )}
     </div>

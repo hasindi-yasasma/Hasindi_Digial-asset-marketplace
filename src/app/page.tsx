@@ -50,72 +50,121 @@ export default function Home() {
   };
 
   return (
-    <div className="space-y-16 py-8">
-      {/* Hero Banner Section */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-slate-900 via-slate-900/80 to-slate-950 border border-slate-800 p-8 sm:p-12 lg:p-16">
-        <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 rounded-full bg-brand-600/20 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-96 h-96 rounded-full bg-cyan-600/10 blur-3xl pointer-events-none" />
+    <div className="space-y-16 py-4">
+      {/* Hero Banner Section matching reference image */}
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-white/90 via-emerald-50/40 to-teal-50/60 border border-slate-200/80 p-8 sm:p-12 lg:p-16 shadow-xl shadow-slate-200/50 backdrop-blur-xl">
+        {/* Decorative Background Swashes */}
+        <div className="absolute top-0 right-0 -mt-16 -mr-16 w-96 h-96 rounded-full bg-emerald-200/40 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 -mb-16 -ml-16 w-96 h-96 rounded-full bg-purple-200/30 blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 max-w-3xl space-y-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-300 text-xs font-bold uppercase tracking-wider">
-            <Sparkles className="w-4 h-4 text-brand-400" />
-            <span>Decentralized Asset Infrastructure</span>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+          {/* Left Column: Hero Copy & CTA */}
+          <div className="lg:col-span-7 space-y-6">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-black uppercase tracking-wider">
+              <Sparkles className="w-4 h-4 text-emerald-500" />
+              <span>Decentralized Asset Infrastructure</span>
+            </div>
+
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-900 leading-[1.12]">
+              Make Digital <br />
+              <span className="text-emerald-500">Asset Trading</span> <br />
+              with Our <span className="text-emerald-500">Marketplace</span>
+            </h1>
+
+            <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-medium max-w-xl">
+              Discover, mint, and trade verified ERC-721 digital tokens on Ethereum Sepolia. Powered by immutable smart contract logic and zero centralized database dependency.
+            </p>
+
+            {/* Quick Pill Actions matching reference email/input design */}
+            <div className="pt-2">
+              <div className="flex flex-col sm:flex-row items-center gap-3 p-2 bg-white rounded-full border border-slate-200/80 shadow-xl shadow-slate-200/60 max-w-md">
+                <div className="flex items-center gap-2 px-4 py-2 text-slate-400 w-full">
+                  <ShoppingBag className="w-5 h-5 text-emerald-500 shrink-0" />
+                  <span className="text-xs font-bold text-slate-600">Explore 100% On-Chain Assets</span>
+                </div>
+                <Link
+                  href="/marketplace"
+                  className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold text-xs shadow-lg shadow-emerald-500/25 transition-all text-center whitespace-nowrap"
+                >
+                  Explore Now
+                </Link>
+              </div>
+            </div>
+
+            <div className="pt-2 flex items-center gap-4 text-xs font-bold text-slate-500">
+              <Link
+                href="/create"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 transition-colors shadow-sm"
+              >
+                <PlusCircle className="w-4 h-4 text-emerald-600" />
+                <span>Mint New Digital Asset</span>
+              </Link>
+            </div>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.15]">
-            Discover, Mint & Trade <br />
-            <span className="bg-gradient-to-r from-brand-400 via-indigo-300 to-cyan-400 bg-clip-text text-transparent">
-              Digital Assets On-Chain
-            </span>
-          </h1>
-
-          <p className="text-base sm:text-lg text-slate-300 leading-relaxed">
-            A 100% decentralized digital marketplace powered by Solidity smart contracts and Ethereum. Zero database reliance — every asset, transfer, and transaction history is immutably verified on the blockchain.
-          </p>
-
-          <div className="pt-4 flex flex-wrap items-center gap-4">
-            <Link
-              href="/marketplace"
-              className="flex items-center gap-2 px-7 py-3.5 rounded-2xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-bold text-sm shadow-xl shadow-brand-600/30 transition-all hover:scale-[1.02]"
+          {/* Right Column: Visual Showcase Container matching reference image style */}
+          <div className="lg:col-span-5 relative flex justify-center items-center">
+            {/* Organic curved yellow accent line representation */}
+            <svg
+              className="absolute -bottom-6 -left-6 w-48 h-48 text-amber-400 opacity-80 pointer-events-none"
+              viewBox="0 0 200 200"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
             >
-              <ShoppingBag className="w-5 h-5" />
-              <span>Explore Marketplace</span>
-              <ArrowRight className="w-4 h-4 ml-1" />
-            </Link>
+              <path
+                d="M10 150 C 60 100, 140 180, 190 100"
+                stroke="currentColor"
+                strokeWidth="12"
+                strokeLinecap="round"
+              />
+            </svg>
 
-            <Link
-              href="/create"
-              className="flex items-center gap-2 px-7 py-3.5 rounded-2xl bg-slate-900 border border-slate-700 hover:border-slate-500 text-slate-200 hover:text-white font-bold text-sm transition-all"
-            >
-              <PlusCircle className="w-5 h-5 text-brand-400" />
-              <span>Mint New Asset</span>
-            </Link>
+            {/* Main Showcase Image Box with Curved Cutout Accent */}
+            <div className="relative w-full max-w-sm aspect-square rounded-[2.5rem] bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-500 p-1 shadow-2xl shadow-emerald-500/20 group">
+              <div className="w-full h-full bg-slate-900 rounded-[2.3rem] overflow-hidden relative">
+                <img
+                  src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop"
+                  alt="Featured Hero Asset"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-90"
+                />
+
+                {/* Floating 3D/Glass Badges */}
+                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-slate-100 shadow-md font-mono text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
+                  <span>ERC-721 Token</span>
+                </div>
+
+                <div className="absolute bottom-4 right-4 bg-emerald-500 text-white px-4 py-2 rounded-full font-black text-xs shadow-lg shadow-emerald-500/30 flex items-center gap-1.5">
+                  <span>Verified On-Chain</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Quick Stats Pills */}
-        <div className="mt-12 pt-8 border-t border-slate-800/80 grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800">
-            <span className="block text-xs font-semibold text-slate-400 uppercase">Total Assets</span>
-            <span className="text-xl font-extrabold text-white mt-1 block">
+        <div className="mt-12 pt-8 border-t border-slate-200/80 grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="p-4 rounded-2xl bg-white/90 border border-slate-200/80 shadow-sm">
+            <span className="block text-[11px] font-black text-slate-400 uppercase tracking-wider">Total Assets</span>
+            <span className="text-2xl font-black text-slate-900 mt-1 block">
               {stats ? stats.totalAssets : '...'}
             </span>
           </div>
-          <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800">
-            <span className="block text-xs font-semibold text-slate-400 uppercase">For Sale</span>
-            <span className="text-xl font-extrabold text-emerald-400 mt-1 block">
+          <div className="p-4 rounded-2xl bg-white/90 border border-slate-200/80 shadow-sm">
+            <span className="block text-[11px] font-black text-slate-400 uppercase tracking-wider">For Sale</span>
+            <span className="text-2xl font-black text-emerald-600 mt-1 block">
               {stats ? stats.assetsForSale : '...'}
             </span>
           </div>
-          <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800">
-            <span className="block text-xs font-semibold text-slate-400 uppercase">Volume</span>
-            <span className="text-xl font-extrabold text-cyan-400 mt-1 block">
+          <div className="p-4 rounded-2xl bg-white/90 border border-slate-200/80 shadow-sm">
+            <span className="block text-[11px] font-black text-slate-400 uppercase tracking-wider">Volume</span>
+            <span className="text-2xl font-black text-teal-600 mt-1 block">
               {stats ? formatEth(stats.totalVolumeEth) : '...'}
             </span>
           </div>
-          <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800">
-            <span className="block text-xs font-semibold text-slate-400 uppercase">Unique Owners</span>
-            <span className="text-xl font-extrabold text-purple-400 mt-1 block">
+          <div className="p-4 rounded-2xl bg-white/90 border border-slate-200/80 shadow-sm">
+            <span className="block text-[11px] font-black text-slate-400 uppercase tracking-wider">Unique Owners</span>
+            <span className="text-2xl font-black text-purple-600 mt-1 block">
               {stats ? stats.uniqueOwnersCount : '...'}
             </span>
           </div>
@@ -126,16 +175,16 @@ export default function Home() {
       <section className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-extrabold text-white flex items-center gap-2">
-              <TrendingUp className="w-6 h-6 text-brand-400" />
+            <h2 className="text-2xl font-black text-slate-900 flex items-center gap-2">
+              <TrendingUp className="w-6 h-6 text-emerald-500" />
               <span>Featured Digital Assets</span>
             </h2>
-            <p className="text-xs text-slate-400 mt-1">Explore recently minted tokens available for acquisition</p>
+            <p className="text-xs text-slate-500 mt-1 font-medium">Explore recently minted tokens available for acquisition</p>
           </div>
 
           <Link
             href="/marketplace"
-            className="text-xs font-bold text-brand-400 hover:text-brand-300 flex items-center gap-1"
+            className="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
           >
             <span>View All</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -155,11 +204,11 @@ export default function Home() {
             ))}
           </div>
         ) : (
-          <div className="p-12 text-center rounded-2xl bg-slate-900/40 border border-slate-800">
-            <p className="text-slate-400 text-sm">No digital assets have been minted yet.</p>
+          <div className="p-12 text-center rounded-3xl bg-white/90 border border-slate-200/80 shadow-md">
+            <p className="text-slate-500 text-sm font-medium">No digital assets have been minted yet.</p>
             <Link
               href="/create"
-              className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-600 text-white font-bold text-xs"
+              className="mt-4 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-500/25"
             >
               <PlusCircle className="w-4 h-4" />
               <span>Mint the First Asset</span>
@@ -170,32 +219,32 @@ export default function Home() {
 
       {/* Platform Features / Security Section */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="rounded-2xl bg-slate-900/60 border border-slate-800 p-6 space-y-3">
-          <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 w-fit">
+        <div className="rounded-3xl bg-white/90 border border-slate-200/80 p-6 space-y-3 shadow-lg shadow-slate-200/40">
+          <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-600 w-fit shadow-sm">
             <ShieldCheck className="w-6 h-6" />
           </div>
-          <h3 className="text-base font-bold text-white">Reentrancy Protection</h3>
-          <p className="text-xs text-slate-400 leading-relaxed">
+          <h3 className="text-base font-black text-slate-900">Reentrancy Protection</h3>
+          <p className="text-xs text-slate-500 leading-relaxed font-medium">
             Marketplace smart contract inherits OpenZeppelin ReentrancyGuard and follows the strict Checks-Effects-Interactions design pattern.
           </p>
         </div>
 
-        <div className="rounded-2xl bg-slate-900/60 border border-slate-800 p-6 space-y-3">
-          <div className="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 w-fit">
+        <div className="rounded-3xl bg-white/90 border border-slate-200/80 p-6 space-y-3 shadow-lg shadow-slate-200/40">
+          <div className="p-3 rounded-2xl bg-teal-50 border border-teal-200 text-teal-600 w-fit shadow-sm">
             <Zap className="w-6 h-6" />
           </div>
-          <h3 className="text-base font-bold text-white">Gas-Efficient Storage</h3>
-          <p className="text-xs text-slate-400 leading-relaxed">
+          <h3 className="text-base font-black text-slate-900">Gas-Efficient Storage</h3>
+          <p className="text-xs text-slate-500 leading-relaxed font-medium">
             Solidity compiler optimization enabled with 200 runs, custom error revert messages, and packed storage structs.
           </p>
         </div>
 
-        <div className="rounded-2xl bg-slate-900/60 border border-slate-800 p-6 space-y-3">
-          <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 w-fit">
+        <div className="rounded-3xl bg-white/90 border border-slate-200/80 p-6 space-y-3 shadow-lg shadow-slate-200/40">
+          <div className="p-3 rounded-2xl bg-purple-50 border border-purple-200 text-purple-600 w-fit shadow-sm">
             <Lock className="w-6 h-6" />
           </div>
-          <h3 className="text-base font-bold text-white">Immutable Provenance</h3>
-          <p className="text-xs text-slate-400 leading-relaxed">
+          <h3 className="text-base font-black text-slate-900">Immutable Provenance</h3>
+          <p className="text-xs text-slate-500 leading-relaxed font-medium">
             Complete lifecycle recording on-chain (Mint, List, Sale, Transfer, Cancel, Price Update) accessible anytime.
           </p>
         </div>
