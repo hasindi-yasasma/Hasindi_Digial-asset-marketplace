@@ -10,6 +10,7 @@ import {
   PlusCircle,
   ShoppingBag,
   History,
+  Activity,
   BarChart3,
   Info,
   Wallet,
@@ -40,7 +41,7 @@ export const Navbar: React.FC = () => {
     { path: '/marketplace', label: 'Marketplace', icon: ShoppingBag },
     { path: '/create', label: 'Create Asset', icon: PlusCircle },
     { path: '/my-assets', label: 'My Assets', icon: Coins },
-    { path: '/history', label: 'History', icon: History },
+    { path: '/activity', label: 'Activity', icon: Activity },
     { path: '/analytics', label: 'Analytics', icon: BarChart3 },
     { path: '/about', label: 'About', icon: Info },
   ];

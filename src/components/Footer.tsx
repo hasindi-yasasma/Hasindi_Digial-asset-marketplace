@@ -55,7 +55,7 @@ export const Footer: React.FC = () => {
               <li><Link href="/marketplace" className="hover:text-emerald-600 transition-colors">Marketplace</Link></li>
               <li><Link href="/create" className="hover:text-emerald-600 transition-colors">Mint Digital Asset</Link></li>
               <li><Link href="/my-assets" className="hover:text-emerald-600 transition-colors">My Portfolio</Link></li>
-              <li><Link href="/history" className="hover:text-emerald-600 transition-colors">Blockchain History</Link></li>
+              <li><Link href="/activity" className="hover:text-emerald-600 transition-colors">Activity &amp; Transactions</Link></li>
             </ul>
           </div>
 
