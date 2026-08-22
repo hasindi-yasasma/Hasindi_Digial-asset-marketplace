@@ -3,10 +3,17 @@ export function formatAddress(address: string | undefined | null): string {
   return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
 }
 
-export function formatEth(valEth: string | number): string {
+export function formatEth(valEth: string | number | undefined | null): string {
+  if (valEth === undefined || valEth === null || valEth === '') return '0.00 ETH';
   const num = typeof valEth === 'string' ? parseFloat(valEth) : valEth;
   if (isNaN(num)) return '0.00 ETH';
-  return `${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })} ETH`;
+  if (num === 0) return '0.00 ETH';
+
+  const formatted = num.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 6,
+  });
+  return `${formatted} ETH`;
 }
 
 export function formatDate(timestamp: number): string {

@@ -170,9 +170,9 @@ export default function CreateAssetPage() {
                   <input
                     type="number"
                     step="any"
-                    min="0.0001"
+                    min="0.000000000000000001"
                     required={forSale}
-                    placeholder="0.1"
+                    placeholder="0.001"
                     value={priceEth}
                     onChange={(e) => setPriceEth(e.target.value)}
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-500 font-mono font-bold"

@@ -1,4 +1,5 @@
 import hre from "hardhat";
+import "@nomicfoundation/hardhat-toolbox";
 const { ethers } = hre;
 import * as fs from "fs";
 import * as path from "path";

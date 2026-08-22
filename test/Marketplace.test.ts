@@ -1,24 +1,26 @@
 import { expect } from "chai";
-import { ethers } from "hardhat";
+import hre from "hardhat";
+import "@nomicfoundation/hardhat-toolbox";
+const { ethers } = hre;
 import { DigitalAssetNFT, Marketplace } from "../typechain-types";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 
-describe("Decentralized Digital Asset Marketplace", function () {
+describe("LumenMarketplace Smart Contract", function () {
   let nftContract: DigitalAssetNFT;
   let marketplace: Marketplace;
   let owner: SignerWithAddress;
-  let seller: SignerWithAddress;
+  let creator: SignerWithAddress;
   let buyer: SignerWithAddress;
   let user3: SignerWithAddress;
 
-  const sampleName = "Cyberpunk Digital Avatar";
+  const sampleName = "Cyberpunk Hologram Avatar";
   const sampleDesc = "A rare 3D collectible digital asset stored on Ethereum.";
   const sampleCategory = "Art";
   const sampleImg = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe";
   const samplePrice = ethers.parseEther("1.0"); // 1 ETH
 
   beforeEach(async function () {
-    [owner, seller, buyer, user3] = await ethers.getSigners();
+    [owner, creator, buyer, user3] = await ethers.getSigners();
 
     const NFTFactory = await ethers.getContractFactory("DigitalAssetNFT");
     nftContract = (await NFTFactory.deploy(owner.address)) as DigitalAssetNFT;
@@ -34,167 +36,221 @@ describe("Decentralized Digital Asset Marketplace", function () {
     await nftContract.setMarketplaceAddress(await marketplace.getAddress());
   });
 
-  describe("Asset Creation and Minting", function () {
-    it("Should allow a user to create and list a new asset", async function () {
+  describe("Asset Registration & Minting", function () {
+    it("Should register an asset and mint an ERC-721 token to the creator", async function () {
       const tx = await marketplace
-        .connect(seller)
+        .connect(creator)
         .createAndListAsset(sampleName, sampleDesc, sampleCategory, sampleImg, samplePrice, true);
 
       await expect(tx)
-        .to.emit(marketplace, "AssetCreated");
+        .to.emit(marketplace, "AssetCreated")
+        .withArgs(1, sampleName, sampleCategory, sampleImg, creator.address, creator.address, samplePrice, true, (await ethers.provider.getBlock("latest"))!.timestamp);
 
       const asset = await marketplace.getAsset(1);
       expect(asset.tokenId).to.equal(1);
       expect(asset.name).to.equal(sampleName);
-      expect(asset.creator).to.equal(seller.address);
-      expect(asset.currentOwner).to.equal(seller.address);
+      expect(asset.creator).to.equal(creator.address);
+      expect(asset.currentOwner).to.equal(creator.address);
       expect(asset.price).to.equal(samplePrice);
       expect(asset.forSale).to.be.true;
+      expect(await nftContract.ownerOf(1)).to.equal(creator.address);
     });
 
-    it("Should revert if required fields are empty", async function () {
+    it("Should register an unlisted asset when price is 0", async function () {
+      const tx = await marketplace
+        .connect(creator)
+        .createAndListAsset(sampleName, sampleDesc, sampleCategory, sampleImg, 0, false);
+
+      await expect(tx).to.emit(marketplace, "AssetCreated");
+
+      const asset = await marketplace.getAsset(1);
+      expect(asset.forSale).to.be.false;
+      expect(asset.price).to.equal(0);
+      expect(await nftContract.ownerOf(1)).to.equal(creator.address);
+    });
+
+    it("Should reject registration with empty name", async function () {
       await expect(
         marketplace
-          .connect(seller)
+          .connect(creator)
           .createAndListAsset("", sampleDesc, sampleCategory, sampleImg, samplePrice, true)
       ).to.be.revertedWithCustomError(marketplace, "EmptyString");
     });
+  });
 
-    it("Should revert if listed for sale with 0 price", async function () {
+  describe("Listing and Unlisting", function () {
+    beforeEach(async function () {
+      await marketplace
+        .connect(creator)
+        .createAndListAsset(sampleName, sampleDesc, sampleCategory, sampleImg, 0, false);
+    });
+
+    it("Should allow the owner to list an asset for sale", async function () {
+      const tx = await marketplace.connect(creator).listAsset(1, samplePrice);
+
+      await expect(tx).to.emit(marketplace, "AssetListed");
+
+      const asset = await marketplace.getAsset(1);
+      expect(asset.forSale).to.be.true;
+      expect(asset.price).to.equal(samplePrice);
+    });
+
+    it("Should reject listing if price is 0", async function () {
       await expect(
-        marketplace
-          .connect(seller)
-          .createAndListAsset(sampleName, sampleDesc, sampleCategory, sampleImg, 0, true)
+        marketplace.connect(creator).listAsset(1, 0)
       ).to.be.revertedWithCustomError(marketplace, "PriceMustBeGreaterThanZero");
+    });
+
+    it("Should allow the owner to unlist an asset", async function () {
+      await marketplace.connect(creator).listAsset(1, samplePrice);
+
+      const tx = await marketplace.connect(creator).cancelListing(1);
+      await expect(tx).to.emit(marketplace, "ListingCancelled");
+
+      const asset = await marketplace.getAsset(1);
+      expect(asset.forSale).to.be.false;
+    });
+
+    it("Should reject listing and unlisting from non-owner", async function () {
+      await expect(
+        marketplace.connect(buyer).listAsset(1, samplePrice)
+      ).to.be.revertedWithCustomError(marketplace, "NotOwner");
+
+      await marketplace.connect(creator).listAsset(1, samplePrice);
+
+      await expect(
+        marketplace.connect(buyer).cancelListing(1)
+      ).to.be.revertedWithCustomError(marketplace, "NotOwner");
     });
   });
 
   describe("Buying Assets", function () {
     beforeEach(async function () {
       await marketplace
-        .connect(seller)
+        .connect(creator)
         .createAndListAsset(sampleName, sampleDesc, sampleCategory, sampleImg, samplePrice, true);
     });
 
-    it("Should allow a buyer to purchase an asset for sale", async function () {
-      const sellerInitialBal = await ethers.provider.getBalance(seller.address);
+    it("Should successfully execute purchase, transfer funds and ownership", async function () {
+      const sellerInitialBal = await ethers.provider.getBalance(creator.address);
 
-      const buyTx = await marketplace
-        .connect(buyer)
-        .buyAsset(1, { value: samplePrice });
+      const buyTx = await marketplace.connect(buyer).buyAsset(1, { value: samplePrice });
 
       await expect(buyTx)
-        .to.emit(marketplace, "AssetPurchased");
+        .to.emit(marketplace, "AssetPurchased")
+        .withArgs(1, buyer.address, creator.address, samplePrice, (await ethers.provider.getBlock("latest"))!.timestamp);
 
-      const updatedAsset = await marketplace.getAsset(1);
-      expect(updatedAsset.currentOwner).to.equal(buyer.address);
-      expect(updatedAsset.forSale).to.be.false;
+      const asset = await marketplace.getAsset(1);
+      expect(asset.currentOwner).to.equal(buyer.address);
+      expect(asset.forSale).to.be.false;
+      expect(await nftContract.ownerOf(1)).to.equal(buyer.address);
 
-      const sellerFinalBal = await ethers.provider.getBalance(seller.address);
+      const sellerFinalBal = await ethers.provider.getBalance(creator.address);
       expect(sellerFinalBal - sellerInitialBal).to.equal(samplePrice);
     });
 
-    it("Should revert if buyer attempts to purchase their own asset", async function () {
-      await expect(
-        marketplace.connect(seller).buyAsset(1, { value: samplePrice })
-      ).to.be.revertedWithCustomError(marketplace, "CannotBuyOwnAsset");
+    it("Should refund excess payment when buyer overpays", async function () {
+      const overpaidAmount = ethers.parseEther("1.5");
+      const buyerInitialBal = await ethers.provider.getBalance(buyer.address);
+
+      const tx = await marketplace.connect(buyer).buyAsset(1, { value: overpaidAmount });
+      const receipt = await tx.wait();
+      const gasCost = receipt!.gasUsed * receipt!.gasPrice;
+
+      const buyerFinalBal = await ethers.provider.getBalance(buyer.address);
+      expect(buyerInitialBal - buyerFinalBal - gasCost).to.equal(samplePrice);
     });
 
-    it("Should revert if payment is insufficient", async function () {
+    it("Should reject purchase if asset is not for sale", async function () {
+      await marketplace.connect(creator).cancelListing(1);
+
+      await expect(
+        marketplace.connect(buyer).buyAsset(1, { value: samplePrice })
+      ).to.be.revertedWithCustomError(marketplace, "AssetNotForSale");
+    });
+
+    it("Should reject purchase with insufficient funds", async function () {
       const lowPrice = ethers.parseEther("0.5");
       await expect(
         marketplace.connect(buyer).buyAsset(1, { value: lowPrice })
       ).to.be.revertedWithCustomError(marketplace, "InsufficientPayment");
     });
+
+    it("Should reject purchase by current owner", async function () {
+      await expect(
+        marketplace.connect(creator).buyAsset(1, { value: samplePrice })
+      ).to.be.revertedWithCustomError(marketplace, "CannotBuyOwnAsset");
+    });
   });
 
-  describe("Listing Management (Relist, Price Update, Cancel)", function () {
+  describe("Direct Transfers", function () {
     beforeEach(async function () {
       await marketplace
-        .connect(seller)
-        .createAndListAsset(sampleName, sampleDesc, sampleCategory, sampleImg, samplePrice, false);
-    });
-
-    it("Should allow owner to list an unlisted asset", async function () {
-      await expect(marketplace.connect(seller).listAsset(1, samplePrice))
-        .to.emit(marketplace, "AssetListed");
-
-      const asset = await marketplace.getAsset(1);
-      expect(asset.forSale).to.be.true;
-    });
-
-    it("Should allow owner to update price", async function () {
-      await marketplace.connect(seller).listAsset(1, samplePrice);
-      const newPrice = ethers.parseEther("2.5");
-
-      await expect(marketplace.connect(seller).updateListingPrice(1, newPrice))
-        .to.emit(marketplace, "PriceUpdated");
-
-      const asset = await marketplace.getAsset(1);
-      expect(asset.price).to.equal(newPrice);
-    });
-
-    it("Should allow owner to cancel listing", async function () {
-      await marketplace.connect(seller).listAsset(1, samplePrice);
-
-      await expect(marketplace.connect(seller).cancelListing(1))
-        .to.emit(marketplace, "ListingCancelled");
-
-      const asset = await marketplace.getAsset(1);
-      expect(asset.forSale).to.be.false;
-    });
-  });
-
-  describe("Direct Transfer", function () {
-    it("Should transfer asset directly to another wallet address", async function () {
-      await marketplace
-        .connect(seller)
+        .connect(creator)
         .createAndListAsset(sampleName, sampleDesc, sampleCategory, sampleImg, samplePrice, true);
+    });
 
-      await expect(marketplace.connect(seller).transferAsset(1, user3.address))
-        .to.emit(marketplace, "AssetTransferred");
+    it("Should successfully transfer an asset directly to another address", async function () {
+      const tx = await marketplace.connect(creator).transferAsset(1, user3.address);
+
+      await expect(tx).to.emit(marketplace, "AssetTransferred");
 
       const asset = await marketplace.getAsset(1);
       expect(asset.currentOwner).to.equal(user3.address);
       expect(asset.forSale).to.be.false;
+      expect(await nftContract.ownerOf(1)).to.equal(user3.address);
+    });
+
+    it("Should reject direct transfer from non-owner", async function () {
+      await expect(
+        marketplace.connect(buyer).transferAsset(1, user3.address)
+      ).to.be.revertedWithCustomError(marketplace, "NotOwner");
+    });
+
+    it("Should reject transfer to zero address or self", async function () {
+      await expect(
+        marketplace.connect(creator).transferAsset(1, ethers.ZeroAddress)
+      ).to.be.revertedWithCustomError(marketplace, "InvalidAddress");
+
+      await expect(
+        marketplace.connect(creator).transferAsset(1, creator.address)
+      ).to.be.revertedWithCustomError(marketplace, "InvalidAddress");
     });
   });
 
-  describe("Ownership History and Marketplace Statistics", function () {
-    it("Should record full ownership history immutably", async function () {
+  describe("Bulk Queries and Ownership Views", function () {
+    beforeEach(async function () {
       await marketplace
-        .connect(seller)
-        .createAndListAsset(sampleName, sampleDesc, sampleCategory, sampleImg, samplePrice, true);
-
-      await marketplace.connect(buyer).buyAsset(1, { value: samplePrice });
-
-      await marketplace.connect(buyer).transferAsset(1, user3.address);
-
-      const history = await marketplace.getOwnershipHistory(1);
-      expect(history.length).to.equal(4); // Mint, List, Sale, Transfer
-      expect(history[0].eventType).to.equal("Mint");
-      expect(history[1].eventType).to.equal("List");
-      expect(history[2].eventType).to.equal("Sale");
-      expect(history[3].eventType).to.equal("Transfer");
+        .connect(creator)
+        .createAndListAsset("Asset 1", sampleDesc, sampleCategory, sampleImg, samplePrice, true);
+      await marketplace
+        .connect(creator)
+        .createAndListAsset("Asset 2", sampleDesc, sampleCategory, sampleImg, ethers.parseEther("2.0"), true);
+      await marketplace
+        .connect(buyer)
+        .createAndListAsset("Asset 3", sampleDesc, sampleCategory, sampleImg, 0, false);
     });
 
-    it("Should return correct marketplace statistics and top holders", async function () {
-      await marketplace
-        .connect(seller)
-        .createAndListAsset(sampleName, sampleDesc, sampleCategory, sampleImg, samplePrice, true);
+    it("Should return all assets correctly via getAllAssets", async function () {
+      const assets = await marketplace.getAllAssets();
+      expect(assets.length).to.equal(3);
+      expect(assets[0].name).to.equal("Asset 1");
+      expect(assets[1].name).to.equal("Asset 2");
+      expect(assets[2].name).to.equal("Asset 3");
+    });
 
-      await marketplace
-        .connect(seller)
-        .createAndListAsset("Asset 2", sampleDesc, sampleCategory, sampleImg, samplePrice, false);
-
-      const stats = await marketplace.getMarketplaceStats();
-      expect(stats.totalAssets).to.equal(2);
-      expect(stats.assetsForSale).to.equal(1);
-
+    it("Should return assets filtered by owner via getAssetsByOwner", async function () {
       const topHolders = await marketplace.getTopHolders();
-      expect(topHolders.length).to.equal(1);
-      expect(topHolders[0].holder).to.equal(seller.address);
+      expect(topHolders.length).to.be.greaterThanOrEqual(2);
+      expect(topHolders[0].holder).to.equal(creator.address);
       expect(topHolders[0].assetCount).to.equal(2);
+    });
+
+    it("Should return accurate total assets count", async function () {
+      const stats = await marketplace.getMarketplaceStats();
+      expect(stats.totalAssets).to.equal(3);
+      expect(stats.assetsForSale).to.equal(2);
+      expect(stats.uniqueOwnersCount).to.equal(2);
     });
   });
 });

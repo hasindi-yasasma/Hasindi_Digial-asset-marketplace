@@ -432,7 +432,7 @@ export const Web3Provider: React.FC<{ children: ReactNode }> = ({ children }) =>
       addToast('info', 'Transaction Pending', 'Please confirm the minting transaction in MetaMask...');
       const { contract } = await getSignerAndMarketplace();
 
-      let gasLimit = 950000n;
+      let gasLimit: bigint;
       try {
         const estimated = await contract.createAndListAsset.estimateGas(
           cleanName,
@@ -442,11 +442,10 @@ export const Web3Provider: React.FC<{ children: ReactNode }> = ({ children }) =>
           priceWei,
           forSale
         );
-        const buffered = (estimated * 120n) / 100n;
-        gasLimit = buffered > 1200000n ? 1200000n : buffered;
+        gasLimit = (estimated * 135n) / 100n;
       } catch (estErr) {
-        console.warn('Gas estimation fallback used (950k gas):', estErr);
-        gasLimit = 950000n;
+        console.warn('Gas estimation fallback used (2M gas):', estErr);
+        gasLimit = 2000000n;
       }
 
       const tx = await contract.createAndListAsset(
@@ -478,14 +477,13 @@ export const Web3Provider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const { contract } = await getSignerAndMarketplace();
       const priceWei = ethers.parseEther(priceEth);
 
-      let gasLimit = 250000n;
+      let gasLimit: bigint;
       try {
         const estimated = await contract.listAsset.estimateGas(tokenId, priceWei);
-        const buffered = (estimated * 120n) / 100n;
-        gasLimit = buffered > 400000n ? 400000n : buffered;
+        gasLimit = (estimated * 130n) / 100n;
       } catch (estErr) {
         console.warn('Gas estimation failed, using fallback gas limit:', estErr);
-        gasLimit = 250000n;
+        gasLimit = 400000n;
       }
 
       const tx = await contract.listAsset(tokenId, priceWei, { gasLimit });
@@ -506,14 +504,13 @@ export const Web3Provider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const { contract } = await getSignerAndMarketplace();
       const priceWei = ethers.parseEther(priceEth);
 
-      let gasLimit = 350000n;
+      let gasLimit: bigint;
       try {
         const estimated = await contract.buyAsset.estimateGas(tokenId, { value: priceWei });
-        const buffered = (estimated * 120n) / 100n;
-        gasLimit = buffered > 600000n ? 600000n : buffered;
+        gasLimit = (estimated * 130n) / 100n;
       } catch (estErr) {
         console.warn('Gas estimation failed, using fallback gas limit:', estErr);
-        gasLimit = 350000n;
+        gasLimit = 600000n;
       }
 
       const tx = await contract.buyAsset(tokenId, { value: priceWei, gasLimit });
@@ -535,14 +532,13 @@ export const Web3Provider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const { contract } = await getSignerAndMarketplace();
       const newPriceWei = ethers.parseEther(newPriceEth);
 
-      let gasLimit = 150000n;
+      let gasLimit: bigint;
       try {
         const estimated = await contract.updateListingPrice.estimateGas(tokenId, newPriceWei);
-        const buffered = (estimated * 120n) / 100n;
-        gasLimit = buffered > 300000n ? 300000n : buffered;
+        gasLimit = (estimated * 130n) / 100n;
       } catch (estErr) {
         console.warn('Gas estimation failed, using fallback gas limit:', estErr);
-        gasLimit = 150000n;
+        gasLimit = 300000n;
       }
 
       const tx = await contract.updateListingPrice(tokenId, newPriceWei, { gasLimit });
@@ -561,14 +557,13 @@ export const Web3Provider: React.FC<{ children: ReactNode }> = ({ children }) =>
       addToast('info', 'Transaction Pending', 'Confirm listing cancellation in MetaMask...');
       const { contract } = await getSignerAndMarketplace();
 
-      let gasLimit = 150000n;
+      let gasLimit: bigint;
       try {
         const estimated = await contract.cancelListing.estimateGas(tokenId);
-        const buffered = (estimated * 120n) / 100n;
-        gasLimit = buffered > 300000n ? 300000n : buffered;
+        gasLimit = (estimated * 130n) / 100n;
       } catch (estErr) {
         console.warn('Gas estimation failed, using fallback gas limit:', estErr);
-        gasLimit = 150000n;
+        gasLimit = 300000n;
       }
 
       const tx = await contract.cancelListing(tokenId, { gasLimit });
@@ -590,27 +585,25 @@ export const Web3Provider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const isApproved = await nftContract.isApprovedForAll(account, CONTRACT_ADDRESSES.marketplaceAddress);
       if (!isApproved) {
         addToast('info', 'Approve Operator', 'Approving Marketplace contract to manage transfer...');
-        let appGasLimit = 150000n;
+        let appGasLimit: bigint;
         try {
           const estimated = await nftContract.setApprovalForAll.estimateGas(CONTRACT_ADDRESSES.marketplaceAddress, true);
-          const buffered = (estimated * 120n) / 100n;
-          appGasLimit = buffered > 300000n ? 300000n : buffered;
+          appGasLimit = (estimated * 130n) / 100n;
         } catch (estErr) {
           console.warn('Approval gas estimation failed, using fallback limit:', estErr);
-          appGasLimit = 150000n;
+          appGasLimit = 300000n;
         }
         const appTx = await nftContract.setApprovalForAll(CONTRACT_ADDRESSES.marketplaceAddress, true, { gasLimit: appGasLimit });
         await appTx.wait();
       }
 
-      let gasLimit = 250000n;
+      let gasLimit: bigint;
       try {
         const estimated = await contract.transferAsset.estimateGas(tokenId, toAddress);
-        const buffered = (estimated * 120n) / 100n;
-        gasLimit = buffered > 400000n ? 400000n : buffered;
+        gasLimit = (estimated * 130n) / 100n;
       } catch (estErr) {
         console.warn('Transfer gas estimation failed, using fallback limit:', estErr);
-        gasLimit = 250000n;
+        gasLimit = 400000n;
       }
 
       const tx = await contract.transferAsset(tokenId, toAddress, { gasLimit });
